@@ -1,0 +1,285 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../components/icon_content.dart';
+import '../components/reusable_card.dart';
+import '../constants.dart';
+import 'results_page.dart';
+import '../components/bottom_button.dart';
+import '../components/round_icon_button.dart';
+import '../calculator_brain.dart';
+
+enum Gender {
+  male,
+  female,
+}
+
+class InputPage extends StatefulWidget {
+  @override
+  _InputPageState createState() => _InputPageState();
+}
+
+class _InputPageState extends State<InputPage> {
+  Gender? selectedGender;
+  bool isMetric = true;
+
+  int heightCm = 180;
+  int heightInches = 70; // 5ft 10in
+  int weightKg = 60;
+  int weightLbs = 132;
+  int age = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('BMI CALCULATOR'),
+        actions: [
+          Center(
+            child: Text(isMetric ? "Metric" : "Imperial",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          Switch(
+            value: isMetric,
+            activeColor: Color(0xFFEB1555),
+            onChanged: (value) {
+              setState(() {
+                isMetric = value;
+                if (isMetric) {
+                  // Switch to Metric -> Update Kg/Cm from Lbs/In
+                  heightCm = (heightInches * 2.54).round();
+                  weightKg = (weightLbs / 2.20462).round();
+                } else {
+                  // Switch to Imperial -> Update Lbs/In from Kg/Cm
+                  heightInches = (heightCm / 2.54).round();
+                  weightLbs = (weightKg * 2.20462).round();
+                }
+              });
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+              child: Row(
+            children: <Widget>[
+              Expanded(
+                child: ReusableCard(
+                  onPress: () {
+                    setState(() {
+                      selectedGender = Gender.male;
+                    });
+                  },
+                  colour: selectedGender == Gender.male
+                      ? kActiveCardColor
+                      : kInactiveCardColor,
+                  cardChild: IconContent(
+                    icon: FontAwesomeIcons.mars,
+                    label: 'MALE',
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ReusableCard(
+                  onPress: () {
+                    setState(() {
+                      selectedGender = Gender.female;
+                    });
+                  },
+                  colour: selectedGender == Gender.female
+                      ? kActiveCardColor
+                      : kInactiveCardColor,
+                  cardChild: IconContent(
+                    icon: FontAwesomeIcons.venus,
+                    label: 'FEMALE',
+                  ),
+                ),
+              ),
+            ],
+          )),
+          Expanded(
+            child: ReusableCard(
+              colour: kActiveCardColor,
+              cardChild: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'HEIGHT',
+                    style: kLabelTextStyle,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: <Widget>[
+                      Text(
+                        isMetric
+                            ? heightCm.toString()
+                            : "${heightInches ~/ 12}' ${heightInches % 12}\"",
+                        style: kNumberTextStyle,
+                      ),
+                      Text(
+                        isMetric ? 'cm' : 'ft',
+                        style: kLabelTextStyle,
+                      )
+                    ],
+                  ),
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      inactiveTrackColor: Color(0xFF8D8E98),
+                      activeTrackColor: Colors.white,
+                      thumbColor: Color(0xFFEB1555),
+                      overlayColor: Color(0x29EB1555),
+                      thumbShape:
+                          RoundSliderThumbShape(enabledThumbRadius: 15.0),
+                      overlayShape:
+                          RoundSliderOverlayShape(overlayRadius: 30.0),
+                    ),
+                    child: Slider(
+                      value: isMetric
+                          ? heightCm.toDouble()
+                          : heightInches.toDouble(),
+                      min: isMetric ? 120.0 : 48.0,
+                      max: isMetric ? 220.0 : 84.0,
+                      onChanged: (double newValue) {
+                        setState(() {
+                          if (isMetric) {
+                            heightCm = newValue.round();
+                          } else {
+                            heightInches = newValue.round();
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: ReusableCard(
+                    colour: kActiveCardColor,
+                    cardChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'WEIGHT',
+                          style: kLabelTextStyle,
+                        ),
+                        Text(
+                          isMetric ? weightKg.toString() : weightLbs.toString(),
+                          style: kNumberTextStyle,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RoundIconButton(
+                                icon: FontAwesomeIcons.minus,
+                                onPressed: () {
+                                  setState(() {
+                                    if (isMetric) {
+                                      weightKg--;
+                                    } else {
+                                      weightLbs--;
+                                    }
+                                  });
+                                }),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            RoundIconButton(
+                              icon: FontAwesomeIcons.plus,
+                              onPressed: () {
+                                setState(() {
+                                  if (isMetric) {
+                                    weightKg++;
+                                  } else {
+                                    weightLbs++;
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ReusableCard(
+                    colour: kActiveCardColor,
+                    cardChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'AGE',
+                          style: kLabelTextStyle,
+                        ),
+                        Text(
+                          age.toString(),
+                          style: kNumberTextStyle,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RoundIconButton(
+                              icon: FontAwesomeIcons.minus,
+                              onPressed: () {
+                                setState(() {
+                                  age--;
+                                });
+                              },
+                            ),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            RoundIconButton(
+                                icon: FontAwesomeIcons.plus,
+                                onPressed: () {
+                                  setState(() {
+                                    age++;
+                                  });
+                                })
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          BottomButton(
+            buttonTitle: 'CALCULATE',
+            onTap: () {
+              double calcHeight = isMetric
+                  ? heightCm.toDouble()
+                  : (heightInches * 2.54);
+              double calcWeight = isMetric
+                  ? weightKg.toDouble()
+                  : (weightLbs / 2.20462);
+
+              CalculatorBrain calc =
+                  CalculatorBrain(height: calcHeight, weight: calcWeight);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ResultsPage(
+                    bmiResult: calc.calculateBMI(),
+                    resultText: calc.getResult(),
+                    interpretation: calc.getInterpretation(),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
