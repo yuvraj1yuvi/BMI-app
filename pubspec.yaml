@@ -38,8 +38,17 @@ dependencies:
   share_plus: ^12.0.1
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  adaptive_icon_background: "#0A0E21" # Matching app dark theme
+  adaptive_icon_foreground: "assets/images/logo.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

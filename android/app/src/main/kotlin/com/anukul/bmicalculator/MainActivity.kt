@@ -1,4 +1,4 @@
-package com.example.anukul_app
+package com.anukul.bmicalculator
 
 import io.flutter.embedding.android.FlutterActivity
 
